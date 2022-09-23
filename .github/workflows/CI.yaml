@@ -8,6 +8,11 @@ on:
         required: false
         type: number
 
+env:
+  TFLINT_VERSION: 0.39.3
+  TFSEC_VERSION: latest
+  TFC_VERSION: 1.2.7
+  
 jobs:
   tflint:
     name: Linting
@@ -19,7 +24,7 @@ jobs:
     - name: TFLint - Setup
       uses: terraform-linters/setup-tflint@v1
       with:
-        tflint_version: ${{ secrets.TFLINT_VERSION }}
+        tflint_version: ${{ env.TFLINT_VERSION }}
         github_token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: TFLint - Version
@@ -42,7 +47,7 @@ jobs:
       uses: aquasecurity/tfsec-action@v1.0.0
       with:
         soft_fail: true
-        version: ${{ secrets.TFSEC_VERSION }}
+        version: ${{ env.TFSEC_VERSION }}
         
   checkov:
     name: Policy Checks
@@ -71,7 +76,7 @@ jobs:
     - name: Terraform - Setup
       uses: hashicorp/setup-terraform@v2
       with: 
-        terraform_version: ${{ secrets.TFC_VERSION }}
+        terraform_version: ${{ env.TFC_VERSION }}
         cli_config_credentials_hostname: ${{ secrets.TFC_ADDR }}
         cli_config_credentials_token: ${{ secrets.TFC_TOKEN }}
 
