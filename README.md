@@ -1,5 +1,15 @@
 # Module Workflows
-A repository to centrally house workflows utilized by L1, L2, L3, &amp; L4 modules and avoid duplication.
+This repository provides re-usable workflows for Terraform modules.
+
+## How To Use
+Calling workflows in this repository is as simple as adding the following to a workflow file in the caller's repository:
+```
+jobs:
+  call-workflow:
+    uses: cartdotcom-cloudoperations/module-workflows/.github/workflows/<workflow-name>.yaml@main
+    with:
+      <input>: <input-value>
+```
 
 ## Resources
 More information about workflow re-use can be found here: https://docs.github.com/en/actions/using-workflows/reusing-workflows
