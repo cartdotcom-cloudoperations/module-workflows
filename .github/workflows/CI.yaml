@@ -9,7 +9,7 @@ on:
         type: number
 
 env:
-  TFLINT_VERSION: 0.39.3
+  TFLINT_VERSION: v0.39.3
   TFSEC_VERSION: latest
   TFC_VERSION: 1.2.7
   
