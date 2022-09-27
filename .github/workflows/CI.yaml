@@ -5,7 +5,7 @@ on:
     inputs:
       module_level:
         description: Possible values are [1|2|3|4]. Determines which group of custom Checkov policies to use.
-        required: false
+        required: true
         type: number
 
 env:
@@ -85,8 +85,13 @@ jobs:
 
     - name: Terraform - Validate
       run: terraform validate -no-color
+      
+    - name: Terraform - Speculative Plan
+      if: ${{ inputs.module_level == 4 }}
+      run: terraform plan
 
   documentation:
+    if: ${{ inputs.module_level != 4 }}
     name: Documentation
     needs: [tflint, tfsec, checkov, terraform]
     runs-on: ubuntu-latest
