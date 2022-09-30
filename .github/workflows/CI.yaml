@@ -67,6 +67,7 @@ jobs:
         log_level: WARNING
         
   terraform:
+    needs: [tflint, tfsec, checkov]
     name: Terraform Validation
     runs-on: ubuntu-latest
     steps:
@@ -93,7 +94,7 @@ jobs:
   documentation:
     if: ${{ inputs.module_level != 4 }}
     name: Documentation
-    needs: [tflint, tfsec, checkov, terraform]
+    needs: [tflint, tfsec, checkov]
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
