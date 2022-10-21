@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       module_level:
-        description: Possible values are [1|2|3|4]. Determines which group of custom Checkov policies to use.
+        description: Possible values are [1|2|3|4]. Indicates the module level for which this workflow should run.
         required: true
         type: number
 
