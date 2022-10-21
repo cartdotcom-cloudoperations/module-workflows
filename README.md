@@ -7,6 +7,7 @@ Calling workflows in this repository is as simple as adding the following to a w
 jobs:
   call-workflow:
     uses: cartdotcom-cloudoperations/module-workflows/.github/workflows/<workflow-name>.yaml@main
+    secrets: inherit
     with:
       <input>: <input-value>
 ```
