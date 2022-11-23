@@ -89,7 +89,7 @@ jobs:
       
     - name: Terraform - Speculative Plan
       if: ${{ inputs.module_level == 4 }}
-      run: terraform plan -parallelism=100
+      run: terraform plan
 
   documentation:
     if: ${{ inputs.module_level != 4 }}
