@@ -125,7 +125,7 @@ jobs:
 
     - name: Get Latest Release
       id: get_latest_release
-      uses: gregziegan/fetch-latest-release@v2
+      uses: gregziegan/fetch-latest-release@v2.0.0
       with:
         github_token: ${{ github.token }}    
 
