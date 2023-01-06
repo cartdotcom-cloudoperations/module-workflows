@@ -124,10 +124,14 @@ jobs:
     steps:
 
     - name: Get Latest Release
+      uses: octokit/request-action@v2.1.0
       id: get_latest_release
-      uses: gregziegan/fetch-latest-release@v2.0.0
       with:
-        github_token: ${{ github.token }}    
+        route: GET /repos/{owner}/{repo}/releases/latest
+        owner: ${{ github.event.repository.owner }}
+        repo: ${{ github.event.repository.name }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
 
     - name: Calculate Next Release
       shell: pwsh
