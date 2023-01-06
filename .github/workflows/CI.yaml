@@ -110,7 +110,9 @@ jobs:
   release:
     if: ${{ inputs.module_level != 4 }}
     name: Release
-    environment: release
+    environment:
+      name: release
+      url: ${{ inputs.terraform_url }}
     needs: [terraform, documentation]
     runs-on: ubuntu-latest
     steps:
