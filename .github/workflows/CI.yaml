@@ -117,9 +117,10 @@ jobs:
 
     - name: Get Current Release
       id: get_current_release
-      uses: joutvhu/get-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
+      uses: pozetroninc/github-action-get-latest-release@master
+      with:
+        repository: ${{ github.repository }}
+        excludes: prerelease, draft
 
     - name: Calculate Next Release
       shell: pwsh
@@ -128,7 +129,7 @@ jobs:
         body: ${{ github.event.head_commit.message }} 
         "@
 
-        $currentTag = '${{ steps.get_current_release.outputs.tag_name }}'
+        $currentTag = '${{ steps.get_current_release.outputs.release }}'
         echo "Current Tag: $currentTag"
         if (-not ($currentTag -match '\d+$')) {
           echo 'Invalid current version.'
