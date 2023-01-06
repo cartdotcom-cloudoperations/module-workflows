@@ -123,12 +123,11 @@ jobs:
       cancel-in-progress: true    
     steps:
 
-    - name: Get Current Release
-      id: get_current_release
-      uses: pozetroninc/github-action-get-latest-release@master
+    - name: Get Latest Release
+      id: get_latest_release
+      uses: thebritican/fetch-latest-release@v1
       with:
-        repository: ${{ github.repository }}
-        excludes: prerelease, draft
+        github_token: ${{ github.token }}    
 
     - name: Calculate Next Release
       shell: pwsh
@@ -137,7 +136,7 @@ jobs:
         body: ${{ github.event.head_commit.message }} 
         "@
 
-        $currentTag = '${{ steps.get_current_release.outputs.release }}'
+        $currentTag = '${{ steps.get_latest_release.outputs.tag_name }}'
         echo "Current Tag: $currentTag"
         if (-not ($currentTag -match '\d+$')) {
           echo 'Invalid current version.'
