@@ -118,6 +118,9 @@ jobs:
       url: ${{ inputs.terraform_url }}
     needs: [terraform, documentation]
     runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}
+      cancel-in-progress: true    
     steps:
 
     - name: Get Current Release
