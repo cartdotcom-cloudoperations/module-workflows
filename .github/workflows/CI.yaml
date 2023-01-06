@@ -105,3 +105,46 @@ jobs:
       with:
         output-method: replace
         git-push: "true"
+
+
+  release:
+    if: ${{ inputs.module_level != 4 }}
+    name: Release
+    environment: release
+    needs: [terraform, documentation]
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Get Current Release
+      id: get_current_release
+      uses: joutvhu/get-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
+
+    - name: Calculate Next Release
+      shell: pwsh
+      run: |
+        echo @"
+        body: ${{ github.event.head_commit.message }} 
+        "@
+
+        $currentTag = '${{ steps.get_current_release.outputs.tag_name }}'
+        echo "Current Tag: $currentTag"
+        if (-not ($currentTag -match '\d+$')) {
+          echo 'Invalid current version.'
+          exit -1          
+        }
+
+        $nextVersion = [int]$Matches[2]
+        $nextVersion++
+        $fullVersion = "$($Matches[1])$nextVersion"
+        echo "Next Tag: $fullVersion"
+        echo "RELEASE_TAG=$fullVersion" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+
+    # - name: Create New Release
+    #   uses: ncipollo/release-action@v1
+    #   with:
+    #     name: ${{ env.RELEASE_TAG }}
+    #     tag: ${{ env.RELEASE_TAG }}
+    #     commit: ${{ github.event.head_commit.id }}
+    #     body: ${{ github.event.head_commit.message }} 
