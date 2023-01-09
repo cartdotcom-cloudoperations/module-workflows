@@ -134,7 +134,7 @@ jobs:
         $shortCommit = $commit.sha.SubString(0, 7)
         echo "tag_name=$tagName" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
         echo "commit_message=$($commit.commit.message)" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
-        echo "commit_url=$($commit.commit.html_url)" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
+        echo "commit_url=$($commit.html_url)" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
         echo "commit_sha_short=$shortCommit" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
@@ -175,10 +175,25 @@ jobs:
         "@
         echo $summary | Out-File -FilePath $Env:GITHUB_STEP_SUMMARY -Encoding utf8 -Append
 
-    # - name: Create New Release
-    #   uses: ncipollo/release-action@v1
-    #   with:
-    #     name: ${{ env.RELEASE_TAG }}
-    #     tag: ${{ env.RELEASE_TAG }}
-    #     commit: ${{ github.event.head_commit.id }}
-    #     body: ${{ github.event.head_commit.message }} 
+    - name: Create New Release
+      shell: pwsh
+      run: |
+        $fullRepo = '${{ github.repository }}'
+        $parts = $fullRepo -split '/'
+        $owner = $parts[0]
+        $repo = $parts[1]
+        $tagName = $env:RELEASE_TAG
+        $json = @"
+        {
+          owner: "$owner",
+          repo: "$repo",
+          tag_name: "$tagName",
+          target_commitish: "${{ github.sha }}",
+          name: "$tagName",
+          draft: false,
+          prerelease: false,
+          generate_release_notes: true
+        }
+        "@
+
+        gh api /repos/${{ github.repository }}/releases -f body=$json
