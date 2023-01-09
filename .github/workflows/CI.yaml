@@ -197,3 +197,5 @@ jobs:
         "@
 
         gh api /repos/${{ github.repository }}/releases -f body=$json
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}        
