@@ -159,7 +159,7 @@ jobs:
 
         ${{ github.event.head_commit.message }} 
         "@
-        echo "BUILD_VERSION=$version" | Out-File -FilePath $Env:GITHUB_STEP_SUMMARY -Encoding utf8 -Append
+        echo $summary | Out-File -FilePath $Env:GITHUB_STEP_SUMMARY -Encoding utf8 -Append
 
     # - name: Create New Release
     #   uses: ncipollo/release-action@v1
