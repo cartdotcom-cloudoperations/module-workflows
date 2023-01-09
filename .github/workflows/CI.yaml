@@ -141,7 +141,7 @@ jobs:
 
         $currentTag = $env:LATEST_RELEASE
         echo "Current Tag: $currentTag"
-        if (-not ($currentTag -match '\d+$')) {
+        if (-not ($currentTag -match '^(.*?)(\d+)$')) {
           echo 'Invalid current version.'
           exit -1          
         }
@@ -151,6 +151,15 @@ jobs:
         $fullVersion = "$($Matches[1])$nextVersion"
         echo "Next Tag: $fullVersion"
         echo "RELEASE_TAG=$fullVersion" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+
+        $summary = @"
+        | Name    | Value        |
+        |---------|--------------|
+        | Release | $fullVersion |
+
+        ${{ github.event.head_commit.message }} 
+        "@
+        echo "BUILD_VERSION=$version" | Out-File -FilePath $Env:$GITHUB_STEP_SUMMARY -Encoding utf8 -Append
 
     # - name: Create New Release
     #   uses: ncipollo/release-action@v1
