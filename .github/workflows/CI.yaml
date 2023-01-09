@@ -168,7 +168,7 @@ jobs:
         | Name    | Value                        |
         |---------|------------------------------|
         | Module  | [$moduleName]($terraformUrl) |
-        | Release | $fullVersion                 |
+        | Release | [$fullVersion](https://github.com/${{ github.repository }}/releases/tag/$fullVersion) |
         | Commit  | [${{ steps.latest_release.outputs.commit_sha_short }}](${{ steps.latest_release.outputs.commit_url }}) |
 
         ### Commit
@@ -180,11 +180,15 @@ jobs:
       shell: pwsh
       run: |
         $tagName = '${{ steps.next_release.outputs.release_tag }}'
+        $body = @"
+        ${{ steps.latest_release.outputs.commit_message }}
+        "@
 
         gh api --method POST -H "Accept: application/vnd.github+json" /repos/${{ github.repository }}/releases `
           -f tag_name="$tagName" `
           -f target_commitish="${{ github.sha }}" `
           -f name="$tagName" `
+          -f body="$body" `
           -F draft=false `
           -F prerelease=false `
           -F generate_release_notes=true
