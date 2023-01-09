@@ -134,7 +134,7 @@ jobs:
         $shortCommit = $commit.sha.SubString(0, 7)
         echo "tag_name=$tagName" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
         echo "commit_message=$($commit.commit.message)" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
-        echo "commit_url=$($commit.commit.url)" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
+        echo "commit_url=$($commit.commit.html_url)" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
         echo "commit_sha_short=$shortCommit" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
@@ -159,10 +159,15 @@ jobs:
         echo "Next Tag: $fullVersion"
         echo "RELEASE_TAG=$fullVersion" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
 
+        $terraformUrl = '${{ inputs.terraform_url }}'
+        $parts = $terraformUrl -split '/'
+        $moduleName = $parts[$parts.Length - 2]
+
         $summary = @"
-        | Name    | Value        |
-        |---------|--------------|
-        | Release | $fullVersion |
+        | Name    | Value                        |
+        |---------|------------------------------|
+        | Module  | [$moduleName]($terraformUrl) |
+        | Release | $fullVersion                 |
         | Commit  | [${{ steps.latest_release.outputs.commit_sha_short }}](${{ steps.latest_release.outputs.commit_url }}) |
 
         ### Commit
