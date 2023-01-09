@@ -179,25 +179,14 @@ jobs:
     - name: Create New Release
       shell: pwsh
       run: |
-        $fullRepo = '${{ github.repository }}'
-        $parts = $fullRepo -split '/'
-        $owner = $parts[0]
-        $repo = $parts[1]
         $tagName = '${{ steps.next_release.outputs.release_tag }}'
-        $json = @"
-        {
-          "owner": "$owner",
-          "repo": "$repo",
-          "tag_name": "$tagName",
-          "target_commitish": "${{ github.sha }}",
-          "name": "$tagName",
-          "draft": false,
-          "prerelease": false,
-          "generate_release_notes": true
-        }
-        "@
-        echo $json
 
-        gh api /repos/${{ github.repository }}/releases -f body=$json
+        gh api --method POST -H "Accept: application/vnd.github+json" /repos/${{ github.repository }}/releases `
+          -f tag_name="$tagName" `
+          -f target_commitish="${{ steps.next_release.outputs.release_tag }}" `
+          -f name="$tagName" `
+          -F draft=false `
+          -F prerelease=false `
+          -F generate_release_notes=true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}        
