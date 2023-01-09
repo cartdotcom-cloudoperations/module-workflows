@@ -124,11 +124,18 @@ jobs:
     steps:
 
     - name: Get Latest Release
+      id: latest_release
       shell: pwsh
       run: |
         $tagName = gh api /repos/${{ github.repository }}/releases/latest --jq '.tag_name'
+        $commit = gh api /repos/${{ github.repository }}/commits/${{ github.sha }} | ConvertFrom-Json
         Write-Host "Latest release: $tagName"
-        echo "LATEST_RELEASE=$tagName" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+
+        $shortCommit = $commit.sha.SubString(0, 7)
+        echo "tag_name=$tagName" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
+        echo "commit_message=$($commit.commit.message)" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
+        echo "commit_url=$($commit.commit.url)" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
+        echo "commit_sha_short=$shortCommit" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
 
@@ -136,10 +143,10 @@ jobs:
       shell: pwsh
       run: |
         echo @"
-        body: ${{ github.event.head_commit.message }} 
+        body: ${{ steps.latest_release.outputs.commit_message }} 
         "@
 
-        $currentTag = $env:LATEST_RELEASE
+        $currentTag = '${{ steps.latest_release.outputs.tag_name }}'
         echo "Current Tag: $currentTag"
         if (-not ($currentTag -match '^(.*?)(\d+)$')) {
           echo 'Invalid current version.'
@@ -156,8 +163,10 @@ jobs:
         | Name    | Value        |
         |---------|--------------|
         | Release | $fullVersion |
+        | Commit  | [${{ steps.latest_release.outputs.commit_sha_short }}](${{ steps.latest_release.outputs.commit_url }}) |
 
-        ${{ github.event.head_commit.message }} 
+        ### Commit
+        ${{ steps.latest_release.outputs.commit_message }}
         "@
         echo $summary | Out-File -FilePath $Env:GITHUB_STEP_SUMMARY -Encoding utf8 -Append
 
