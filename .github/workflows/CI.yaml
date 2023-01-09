@@ -124,10 +124,11 @@ jobs:
     steps:
 
     - name: Get Latest Release
-      uses: octokit/request-action@v2.1.0
-      id: get_latest_release
-      with:
-        route: GET /repos/${{ github.repository }}/releases/latest
+      shell: pwsh
+      run: |
+        $tagName = gh api /repos/${{ github.repository }}/releases/latest --gj '.tag_name'
+        Write-Host "Latest release: $tagName"
+        echo "LATEST_RELEASE=$tagName" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
 
@@ -138,7 +139,7 @@ jobs:
         body: ${{ github.event.head_commit.message }} 
         "@
 
-        $currentTag = '${{ steps.get_latest_release.outputs.tag_name }}'
+        $currentTag = $env:LATEST_RELEASE
         echo "Current Tag: $currentTag"
         if (-not ($currentTag -match '\d+$')) {
           echo 'Invalid current version.'
