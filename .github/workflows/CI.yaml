@@ -183,7 +183,7 @@ jobs:
 
         gh api --method POST -H "Accept: application/vnd.github+json" /repos/${{ github.repository }}/releases `
           -f tag_name="$tagName" `
-          -f target_commitish="${{ steps.next_release.outputs.release_tag }}" `
+          -f target_commitish="${{ github.sha }}" `
           -f name="$tagName" `
           -F draft=false `
           -F prerelease=false `
