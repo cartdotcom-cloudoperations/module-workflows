@@ -186,16 +186,17 @@ jobs:
         $tagName = '${{ steps.next_release.outputs.release_tag }}'
         $json = @"
         {
-          owner: "$owner",
-          repo: "$repo",
-          tag_name: "$tagName",
-          target_commitish: "${{ github.sha }}",
-          name: "$tagName",
-          draft: false,
-          prerelease: false,
-          generate_release_notes: true
+          "owner": "$owner",
+          "repo": "$repo",
+          "tag_name": "$tagName",
+          "target_commitish": "${{ github.sha }}",
+          "name": "$tagName",
+          "draft": false,
+          "prerelease": false,
+          "generate_release_notes": true
         }
         "@
+        echo $json
 
         gh api /repos/${{ github.repository }}/releases -f body=$json
       env:
