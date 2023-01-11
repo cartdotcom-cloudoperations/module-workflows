@@ -7,14 +7,6 @@ on:
         description: Possible values are [1|2|3|4]. Indicates the module level for which this workflow should run.
         required: true
         type: number
-      module_name:
-        description: Name of the terraform module or workspace associated managed by this code base.
-        required: false
-        type: string        
-      module_url:
-        description: URL linking directly to the published module or workspace in Terraform Cloud.
-        required: false
-        type: string
 
 env:
   TFLINT_VERSION: v0.39.3
@@ -114,14 +106,37 @@ jobs:
         output-method: replace
         git-push: "true"
 
+  module_info:
+    if: ${{ inputs.module_level != 4 }}
+    name: Module Info
+    needs: [tflint, tfsec, checkov]
+    runs-on: ubuntu-latest
+    outputs:
+      module_name: ${{ steps.module_info.outputs.module_name }}
+      module_path: ${{ steps.module_info.outputs.module_path }}    
+      module_url: ${{ steps.module_info.outputs.module_url }}  
+    steps:
+    - name: Get Module Info
+      id: module_info
+      shell: pwsh
+      run: |      
+        $parts = '${{ github.repository }}' -split '/'
+        $owner = $parts[0]
+        $repo = $parts[1]
+        $moduleName = $repo -replace 'l[1-4]\/terraform-\([^>]*\)-\(l[1-4]-.*\)', '$1'
+        $modulePath = $repo -replace 'l[1-4]\/terraform-\([^>]*\)-\(l[1-4]-.*\)', '$2/$1'
+        $moduleUrl = "https://app.terraform.io/app/cartdotcom/registry/modules/private/cartdotcom/$modulePath"
+        echo "module_name=$moduleName" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
+        echo "module_path=$modulePath" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
+        echo "module_url=$moduleUrl" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append        
 
   release:
     if: ${{ inputs.module_level != 4 }}
     name: Release
     environment:
       name: release
-      url: ${{ inputs.module_url }}
-    needs: [terraform, documentation]
+      url: ${{ needs.module_info.outputs.module_url }}
+    needs: [terraform, documentation, module_info]
     runs-on: ubuntu-latest
     concurrency:
       group: ${{ github.workflow }}
@@ -165,8 +180,9 @@ jobs:
         echo "Next Tag: $fullVersion"
         echo "release_tag=$fullVersion" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
 
-        $moduleUrl = '${{ inputs.module_url }}'
-        $moduleName = '${{ inputs.module_name }}'
+        $moduleName = '${{ needs.module_info.outputs.module_name }}'
+        $modulePath = '${{ needs.module_info.outputs.module_path }}'
+        $moduleUrl = '${{ needs.module_info.outputs.module_url }}'
 
         $summary = @"
         | Name    | Value                        |
