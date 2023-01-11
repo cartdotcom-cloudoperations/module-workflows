@@ -7,7 +7,12 @@ on:
         description: Possible values are [1|2|3|4]. Indicates the module level for which this workflow should run.
         required: true
         type: number
-      terraform_url:
+      module_name:
+        description: Name of the terraform module or workspace associated managed by this code base.
+        required: false
+        type: string        
+      module_url:
+        description: URL linking directly to the published module or workspace in Terraform Cloud.
         required: false
         type: string
 
@@ -115,7 +120,7 @@ jobs:
     name: Release
     environment:
       name: release
-      url: ${{ inputs.terraform_url }}
+      url: ${{ inputs.module_url }}
     needs: [terraform, documentation]
     runs-on: ubuntu-latest
     concurrency:
@@ -160,14 +165,13 @@ jobs:
         echo "Next Tag: $fullVersion"
         echo "release_tag=$fullVersion" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
 
-        $terraformUrl = '${{ inputs.terraform_url }}'
-        $parts = $terraformUrl -split '/'
-        $moduleName = $parts[$parts.Length - 2]
+        $moduleUrl = '${{ inputs.module_url }}'
+        $moduleName = '${{ inputs.module_name }}'
 
         $summary = @"
         | Name    | Value                        |
         |---------|------------------------------|
-        | Module  | [$moduleName]($terraformUrl) |
+        | Module  | [$moduleName]($moduleUrl) |
         | Release | [$fullVersion](https://github.com/${{ github.repository }}/releases/tag/$fullVersion) |
         | Commit  | [${{ steps.latest_release.outputs.commit_sha_short }}](${{ steps.latest_release.outputs.commit_url }}) |
 
