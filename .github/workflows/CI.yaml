@@ -123,8 +123,8 @@ jobs:
         $parts = '${{ github.repository }}' -split '/'
         $owner = $parts[0]
         $repo = $parts[1]
-        $moduleName = $repo -replace 'l[1-4]\/terraform-\([^>]*\)-\(l[1-4]-.*\)', '$1'
-        $modulePath = $repo -replace 'l[1-4]\/terraform-\([^>]*\)-\(l[1-4]-.*\)', '$2/$1'
+        $moduleName = $repo -replace 'terraform-([^>]*)-(l\d-.*)', '$1'
+        $modulePath = $repo -replace 'terraform-([^>]*)-(l\d-.*)', '$2/$1'
         $moduleUrl = "https://app.terraform.io/app/cartdotcom/registry/modules/private/cartdotcom/$modulePath"
         echo "module_name=$moduleName" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
         echo "module_path=$modulePath" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
