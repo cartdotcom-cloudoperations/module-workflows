@@ -107,27 +107,6 @@ jobs:
         git-push: "true"
 
 
-  release:
-    if: ${{ inputs.module_level != 4 }}
-    name: Release
-    needs: [terraform, documentation]
-    runs-on: ubuntu-latest
-    concurrency:
-      group: ${{ github.workflow }}
-      cancel-in-progress: true    
-    steps:
-    
-    - name: Checkout branch
-      uses: actions/checkout@v2
-
-    - name: Generate release tag
-      id: generate_release_tag
-      uses: amitsingh-007/next-release-tag@v4.0.0
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        tag_prefix: 'v'
-        tag_template: 'i.i.i'
-
 #   module_info:
 #     if: ${{ inputs.module_level != 4 }}
 #     name: Module Info
