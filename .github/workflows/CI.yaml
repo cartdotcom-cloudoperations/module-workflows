@@ -106,111 +106,111 @@ jobs:
         output-method: replace
         git-push: "true"
 
-  module_info:
-    if: ${{ inputs.module_level != 4 }}
-    name: Module Info
-    needs: [tflint, tfsec, checkov]
-    runs-on: ubuntu-latest
-    outputs:
-      module_name: ${{ steps.module_info.outputs.module_name }}
-      module_path: ${{ steps.module_info.outputs.module_path }}    
-      module_url: ${{ steps.module_info.outputs.module_url }}  
-    steps:
-    - name: Get Module Info
-      id: module_info
-      shell: pwsh
-      run: |      
-        $parts = '${{ github.repository }}' -split '/'
-        $owner = $parts[0]
-        $repo = $parts[1]
-        $moduleName = $repo -replace 'terraform-([^>]*)-(l\d-.*)', '$2'
-        $modulePath = $repo -replace 'terraform-([^>]*)-(l\d-.*)', '$2/$1'
-        $moduleUrl = "https://app.terraform.io/app/cartdotcom/registry/modules/private/cartdotcom/$modulePath"
-        echo "module_name=$moduleName" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
-        echo "module_path=$modulePath" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
-        echo "module_url=$moduleUrl" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append        
+#   module_info:
+#     if: ${{ inputs.module_level != 4 }}
+#     name: Module Info
+#     needs: [tflint, tfsec, checkov]
+#     runs-on: ubuntu-latest
+#     outputs:
+#       module_name: ${{ steps.module_info.outputs.module_name }}
+#       module_path: ${{ steps.module_info.outputs.module_path }}    
+#       module_url: ${{ steps.module_info.outputs.module_url }}  
+#     steps:
+#     - name: Get Module Info
+#       id: module_info
+#       shell: pwsh
+#       run: |      
+#         $parts = '${{ github.repository }}' -split '/'
+#         $owner = $parts[0]
+#         $repo = $parts[1]
+#         $moduleName = $repo -replace 'terraform-([^>]*)-(l\d-.*)', '$2'
+#         $modulePath = $repo -replace 'terraform-([^>]*)-(l\d-.*)', '$2/$1'
+#         $moduleUrl = "https://app.terraform.io/app/cartdotcom/registry/modules/private/cartdotcom/$modulePath"
+#         echo "module_name=$moduleName" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
+#         echo "module_path=$modulePath" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
+#         echo "module_url=$moduleUrl" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append        
 
-  release:
-    if: ${{ inputs.module_level != 4 }}
-    name: Release
-    environment:
-      name: release
-      url: ${{ needs.module_info.outputs.module_url }}
-    needs: [terraform, documentation, module_info]
-    runs-on: ubuntu-latest
-    concurrency:
-      group: ${{ github.workflow }}
-      cancel-in-progress: true    
-    steps:
+#   release:
+#     if: ${{ inputs.module_level != 4 }}
+#     name: Release
+#     environment:
+#       name: release
+#       url: ${{ needs.module_info.outputs.module_url }}
+#     needs: [terraform, documentation, module_info]
+#     runs-on: ubuntu-latest
+#     concurrency:
+#       group: ${{ github.workflow }}
+#       cancel-in-progress: true    
+#     steps:
 
-    - name: Get Latest Release
-      id: latest_release
-      shell: pwsh
-      run: |
-        $tagName = gh api /repos/${{ github.repository }}/releases/latest --jq '.tag_name'
-        $commit = gh api /repos/${{ github.repository }}/commits/${{ github.sha }} | ConvertFrom-Json
-        Write-Host "Latest release: $tagName"
+#     - name: Get Latest Release
+#       id: latest_release
+#       shell: pwsh
+#       run: |
+#         $tagName = gh api /repos/${{ github.repository }}/releases/latest --jq '.tag_name'
+#         $commit = gh api /repos/${{ github.repository }}/commits/${{ github.sha }} | ConvertFrom-Json
+#         Write-Host "Latest release: $tagName"
 
-        $shortCommit = $commit.sha.SubString(0, 7)
-        echo "tag_name=$tagName" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
-        echo "commit_message=$($commit.commit.message)" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
-        echo "commit_url=$($commit.html_url)" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
-        echo "commit_sha_short=$shortCommit" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
+#         $shortCommit = $commit.sha.SubString(0, 7)
+#         echo "tag_name=$tagName" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
+#         echo "commit_message=$($commit.commit.message)" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
+#         echo "commit_url=$($commit.html_url)" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
+#         echo "commit_sha_short=$shortCommit" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
+#       env:
+#         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
 
-    - name: Calculate Next Release
-      id: next_release
-      shell: pwsh
-      run: |
-        echo @"
-        body: ${{ steps.latest_release.outputs.commit_message }} 
-        "@
+#     - name: Calculate Next Release
+#       id: next_release
+#       shell: pwsh
+#       run: |
+#         echo @"
+#         body: ${{ steps.latest_release.outputs.commit_message }} 
+#         "@
 
-        $currentTag = '${{ steps.latest_release.outputs.tag_name }}'
-        echo "Current Tag: $currentTag"
-        if (-not ($currentTag -match '^(.*?)(\d+)$')) {
-          echo 'Invalid current version.'
-          exit -1          
-        }
+#         $currentTag = '${{ steps.latest_release.outputs.tag_name }}'
+#         echo "Current Tag: $currentTag"
+#         if (-not ($currentTag -match '^(.*?)(\d+)$')) {
+#           echo 'Invalid current version.'
+#           exit -1          
+#         }
 
-        $nextVersion = [int]$Matches[2]
-        $nextVersion++
-        $fullVersion = "$($Matches[1])$nextVersion"
-        echo "Next Tag: $fullVersion"
-        echo "release_tag=$fullVersion" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
+#         $nextVersion = [int]$Matches[2]
+#         $nextVersion++
+#         $fullVersion = "$($Matches[1])$nextVersion"
+#         echo "Next Tag: $fullVersion"
+#         echo "release_tag=$fullVersion" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
 
-        $moduleName = '${{ needs.module_info.outputs.module_name }}'
-        $modulePath = '${{ needs.module_info.outputs.module_path }}'
-        $moduleUrl = '${{ needs.module_info.outputs.module_url }}'
+#         $moduleName = '${{ needs.module_info.outputs.module_name }}'
+#         $modulePath = '${{ needs.module_info.outputs.module_path }}'
+#         $moduleUrl = '${{ needs.module_info.outputs.module_url }}'
 
-        $summary = @"
-        | Name    | Value                        |
-        |---------|------------------------------|
-        | Module  | [$moduleName]($moduleUrl) |
-        | Release | [$fullVersion](https://github.com/${{ github.repository }}/releases/tag/$fullVersion) |
-        | Commit  | [${{ steps.latest_release.outputs.commit_sha_short }}](${{ steps.latest_release.outputs.commit_url }}) |
+#         $summary = @"
+#         | Name    | Value                        |
+#         |---------|------------------------------|
+#         | Module  | [$moduleName]($moduleUrl) |
+#         | Release | [$fullVersion](https://github.com/${{ github.repository }}/releases/tag/$fullVersion) |
+#         | Commit  | [${{ steps.latest_release.outputs.commit_sha_short }}](${{ steps.latest_release.outputs.commit_url }}) |
 
-        ### Commit
-        ${{ steps.latest_release.outputs.commit_message }}
-        "@
-        echo $summary | Out-File -FilePath $Env:GITHUB_STEP_SUMMARY -Encoding utf8 -Append
+#         ### Commit
+#         ${{ steps.latest_release.outputs.commit_message }}
+#         "@
+#         echo $summary | Out-File -FilePath $Env:GITHUB_STEP_SUMMARY -Encoding utf8 -Append
 
-    - name: Create New Release
-      shell: pwsh
-      run: |
-        $tagName = '${{ steps.next_release.outputs.release_tag }}'
-        $body = @"
-        ${{ steps.latest_release.outputs.commit_message }}
-        "@
+#     - name: Create New Release
+#       shell: pwsh
+#       run: |
+#         $tagName = '${{ steps.next_release.outputs.release_tag }}'
+#         $body = @"
+#         ${{ steps.latest_release.outputs.commit_message }}
+#         "@
 
-        gh api --method POST -H "Accept: application/vnd.github+json" /repos/${{ github.repository }}/releases `
-          -f tag_name="$tagName" `
-          -f target_commitish="${{ github.sha }}" `
-          -f name="$tagName" `
-          -f body="$body" `
-          -F draft=false `
-          -F prerelease=false `
-          -F generate_release_notes=true
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}        
+#         gh api --method POST -H "Accept: application/vnd.github+json" /repos/${{ github.repository }}/releases `
+#           -f tag_name="$tagName" `
+#           -f target_commitish="${{ github.sha }}" `
+#           -f name="$tagName" `
+#           -f body="$body" `
+#           -F draft=false `
+#           -F prerelease=false `
+#           -F generate_release_notes=true
+#       env:
+#         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}        
