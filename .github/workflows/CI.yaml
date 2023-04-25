@@ -106,6 +106,33 @@ jobs:
         output-method: replace
         git-push: "true"
 
+
+#   release:
+#     if: ${{ inputs.module_level != 4 }}
+#     name: Release
+#     needs: [terraform, documentation]
+#     runs-on: ubuntu-latest
+#     permissions:
+#       contents: write
+#     concurrency:
+#       group: ${{ github.workflow }}
+#       cancel-in-progress: true    
+#     steps:
+    
+#       - name:  'Automated Version Bump'
+#         uses:  'phips28/gh-action-bump-version@master'
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#         with:
+#           minor-wording:  'add,Adds,new,minor'
+#           major-wording:  'major,cut-major'
+#           patch-wording:  'bump,patch,fixes'
+#           default: patch
+#           tag-prefix: 'v'
+#           skip-commit:  'true'
+#           skip-tag: 'true'
+#           target-branch: 'main'
+
 #   module_info:
 #     if: ${{ inputs.module_level != 4 }}
 #     name: Module Info
@@ -129,32 +156,6 @@ jobs:
 #         echo "module_name=$moduleName" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
 #         echo "module_path=$modulePath" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
 #         echo "module_url=$moduleUrl" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append        
-
-  release:
-    if: ${{ inputs.module_level != 4 }}
-    name: Release
-    needs: [terraform, documentation]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    concurrency:
-      group: ${{ github.workflow }}
-      cancel-in-progress: true    
-    steps:
-    
-      - name:  'Automated Version Bump'
-        uses:  'phips28/gh-action-bump-version@master'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          minor-wording:  'add,Adds,new,minor'
-          major-wording:  'major,cut-major'
-          patch-wording:  'bump,patch,fixes'
-          default: patch
-          tag-prefix: 'v'
-          skip-commit:  'true'
-          skip-tag: 'true'
-          target-branch: 'main'
 
 #     - name: Get Latest Release
 #       id: latest_release
