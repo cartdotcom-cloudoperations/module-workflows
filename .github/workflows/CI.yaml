@@ -4,9 +4,13 @@ on:
   workflow_call:
     inputs:
       module_level:
-        description: Possible values are [1|2|3|4]. Indicates the module level for which this workflow should run.
+        description: Possible values are [1|2|3|4]. Indicates the modular level for which this workflow should run.
         required: true
         type: number
+      terraform_working_directory:
+        description: The working directory terraform uses in a monorepo with multiple workspaces.
+        type: string  
+        default: '.'      
 
 env:
   TFLINT_VERSION: v0.39.3
@@ -28,12 +32,15 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: TFLint - Version
+      working-directory: ${{ inputs.terraform_working_directory }}
       run: tflint --version
 
     - name: TFLint - Initialize
+      working-directory: ${{ inputs.terraform_working_directory }}
       run: tflint --init
 
     - name: TFLint - Run
+      working-directory: ${{ inputs.terraform_working_directory }}
       run: tflint -f compact
   
   tfsec:
@@ -47,6 +54,7 @@ jobs:
       uses: aquasecurity/tfsec-action@v1.0.0
       with:
         soft_fail: true
+        working_directory: ${{ inputs.terraform_working_directory }}
         version: ${{ env.TFSEC_VERSION }}
         
   checkov:
@@ -61,6 +69,7 @@ jobs:
       with:
         quiet: false
         soft_fail: false
+        directory: ${{ inputs.terraform_working_directory }}
         framework: terraform
         output_format: sarif
         download_external_modules: false
@@ -82,13 +91,16 @@ jobs:
         cli_config_credentials_token: ${{ secrets.TFC_TOKEN }}
 
     - name: Terraform - Init
+      working-directory: ${{ inputs.terraform_working_directory }}
       run: terraform init
 
     - name: Terraform - Validate
+      working-directory: ${{ inputs.terraform_working_directory }}
       run: terraform validate -no-color
       
     - name: Terraform - Speculative Plan
       if: ${{ inputs.module_level == 4 }}
+      working-directory: ${{ inputs.terraform_working_directory }}
       run: terraform plan
 
   documentation:
@@ -105,6 +117,7 @@ jobs:
       with:
         output-method: replace
         git-push: "true"
+        working-dir: ${{ inputs.terraform_working_directory }}
 
 
 #   module_info:
