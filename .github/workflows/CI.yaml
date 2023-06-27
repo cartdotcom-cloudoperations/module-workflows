@@ -62,10 +62,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v12.1347.0
+      uses: actions/checkout@v3
 
     - name: Checkov
-      uses: bridgecrewio/checkov-action@v2.3.301
+      uses: bridgecrewio/checkov-action@v12.1347.0
       with:
         quiet: false
         soft_fail: false
