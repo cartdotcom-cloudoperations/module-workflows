@@ -65,8 +65,8 @@ jobs:
         
   checkov:
     name: Policy Checks
-    #runs-on: ubuntu-latest
-    runs-on: [self-hosted, Linux, X64, ecs]
+    runs-on: ubuntu-latest
+    #runs-on: [self-hosted, Linux, X64, ecs]
     steps:
     - name: Checkout
       uses: actions/checkout@v3
