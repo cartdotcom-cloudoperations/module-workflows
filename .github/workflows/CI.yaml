@@ -25,7 +25,7 @@ jobs:
   tflint:
     name: Linting
     runs-on: ubuntu-latest
-    #runs-on: [self-hosted, Linux, X64, ecs]
+    #runs-on: [self-hosted, Linux, X64, tester]
     steps:
     - name: Checkout 
       uses: actions/checkout@v3
@@ -87,7 +87,7 @@ jobs:
     needs: [tflint, tfsec, checkov]
     #name: Terraform Validation
     runs-on: ubuntu-latest
-    runs-on: [self-hosted, Linux, X64, ecs]
+    #runs-on: [self-hosted, Linux, X64, tester]
     steps:
     - name: Checkout
       uses: actions/checkout@v3
