@@ -88,8 +88,8 @@ jobs:
   terraform:
     needs: [tflint, tfsec, checkov]
     name: Terraform Validation
-    #runs-on: ubuntu-latest
-    runs-on: [self-hosted, Linux, X64, ecs]
+    runs-on: ubuntu-latest
+    #runs-on: [self-hosted, Linux, X64, ecs] temp
     steps:
     - name: Checkout
       uses: actions/checkout@v3
