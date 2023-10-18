@@ -1,0 +1,7 @@
+{
+  "confluenceBaseUrl": "https://cartdotcom.atlassian.net/wiki",
+  "confluenceParentId": "3652386845",
+  "atlassianUserName": "svc-cloudops@cart.com",
+  "folderToPublish": "*",
+  "contentRoot": "/"
+}
