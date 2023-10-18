@@ -133,8 +133,8 @@ jobs:
     - name: Publish Markdown to Confluence
         uses: markdown-confluence/publish@v1
         with:
-          confluenceBaseUrl: https://your-confluence-instance-url
-          confluenceParentId: 123456
+          confluenceBaseUrl: https://cartdotcom.atlassian.net/wiki
+          confluenceParentId: 3652386845
           configFile: .markdown-confluence.json
           contentRoot: /
           atlassianUserName: ${{ secrets.ATLASSIAN_USERNAME }}
