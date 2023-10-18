@@ -131,11 +131,8 @@ jobs:
         working-dir: ${{ inputs.terraform_working_directory }}
 
     - name: Publish Markdown to Confluence
-        uses: markdown-confluence/publish@v1
-        with:
-          confluenceBaseUrl: https://cartdotcom.atlassian.net/wiki
-          confluenceParentId: 3652386845
-          configFile: .markdown-confluence.json
-          contentRoot: /
-          atlassianUserName: ${{ secrets.ATLASSIAN_USERNAME }}
-          atlassianApiToken: ${{ secrets.ATLASSIAN_API_TOKEN }}
+      uses: markdown-confluence/publish@v1
+      with:
+        configFile: .markdown-confluence.json
+        atlassianUserName: ${{ secrets.ATLASSIAN_USERNAME }}
+        atlassianApiToken: ${{ secrets.ATLASSIAN_API_TOKEN }}
