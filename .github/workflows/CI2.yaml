@@ -110,10 +110,10 @@ jobs:
       uses: actions/cache@v4
       with:
         path: |
-          ~/.terraform.d/plugin-cache
+          ${{ inputs.terraform_working_directory }}/.terraform.d/plugin-cache
         key: terraform-${{ runner.os }}-${{ hashFiles('**/.terraform.lock.hcl') }}
         restore-keys: |
-          terraform-${{ runner.os }}-${{ inputs.terraform_working_directory }}
+          terraform-${{ runner.os }}-
             
     - name: Terraform - Init
       working-directory: ${{ inputs.terraform_working_directory }}
