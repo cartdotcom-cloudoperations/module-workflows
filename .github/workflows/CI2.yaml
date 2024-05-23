@@ -101,6 +101,7 @@ jobs:
         cli_config_credentials_token: ${{ secrets.TFC_TOKEN }}
 
     - name: Terraform - Configure Caching
+      working-directory: ${{ inputs.terraform_working_directory }}
       run: |
         echo "TF_PLUGIN_CACHE_DIR=$HOME/.terraform.d/plugin-cache" >>"$GITHUB_ENV"
         mkdir --parents "$HOME/.terraform.d/plugin-cache"
@@ -112,7 +113,7 @@ jobs:
           ~/.terraform.d/plugin-cache
         key: terraform-${{ runner.os }}-${{ hashFiles('**/.terraform.lock.hcl') }}
         restore-keys: |
-          terraform-${{ runner.os }}-
+          terraform-${{ runner.os }}-${{ inputs.terraform_working_directory }}
             
     - name: Terraform - Init
       working-directory: ${{ inputs.terraform_working_directory }}
