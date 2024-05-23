@@ -1,3 +1,5 @@
+### Self-Hosted Runners used for non-docker jobs ###
+
 name: Module CI & Documentation
 
 concurrency:
@@ -19,13 +21,13 @@ on:
 env:
   TFLINT_VERSION: v0.39.3
   TFSEC_VERSION: latest
-  TFC_VERSION: 1.5
+  TFC_VERSION: 1.8.3
   
 jobs:
   tflint:
     name: Linting
-    #runs-on: ubuntu-latest
-    runs-on: [self-hosted, Linux, X64, tester]
+    runs-on: ubuntu-latest
+    #runs-on: [self-hosted, Linux, X64, ecs]
     steps:
     - name: Checkout 
       uses: actions/checkout@v3
@@ -51,7 +53,7 @@ jobs:
   tfsec:
     name: Security Checks
     runs-on: ubuntu-latest
-    #runs-on: [self-hosted, Linux, X64, tester]
+    #runs-on: [self-hosted, Linux, X64, ecs]
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -66,7 +68,7 @@ jobs:
   checkov:
     name: Policy Checks
     runs-on: ubuntu-latest
-    #runs-on: [self-hosted, Linux, X64, tester]
+    #runs-on: [self-hosted, Linux, X64, ecs]
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -87,7 +89,6 @@ jobs:
     needs: [tflint, tfsec, checkov]
     name: Terraform Validation
     runs-on: ubuntu-latest
-    #runs-on: [self-hosted, Linux, X64, tester]
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -99,6 +100,20 @@ jobs:
         cli_config_credentials_hostname: ${{ secrets.TFC_ADDR }}
         cli_config_credentials_token: ${{ secrets.TFC_TOKEN }}
 
+    - name: Terraform - Configure Caching
+      run: |
+        echo "TF_PLUGIN_CACHE_DIR=$HOME/.terraform.d/plugin-cache" >>"$GITHUB_ENV"
+        mkdir --parents "$HOME/.terraform.d/plugin-cache"
+        
+    - name: Terraform - Cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.terraform.d/plugin-cache
+        key: terraform-${{ runner.os }}-${{ hashFiles('**/.terraform.lock.hcl') }}
+        restore-keys: |
+          terraform-${{ runner.os }}-
+            
     - name: Terraform - Init
       working-directory: ${{ inputs.terraform_working_directory }}
       run: terraform init
@@ -117,7 +132,6 @@ jobs:
     name: Documentation
     needs: [tflint, tfsec, checkov]
     runs-on: ubuntu-latest
-    #runs-on: [self-hosted, Linux, X64, tester]
     steps:
     - name: Checkout
       uses: actions/checkout@v3
