@@ -105,7 +105,7 @@ jobs:
       working-directory: ${{ inputs.terraform_working_directory }}
       run: |
         if [ -f providers.tf ]; then
-          sed -r -i 's/(\/\*)?\s*(START|END) TERRAFORM VALIDATION BLOCK\s*(\*\/)?//M' providers.tf
+          sed -r -i 's/(\/\*)?\s*TERRAFORM_VALIDATION_DO_NOT_MODIFY\s*(\*\/)?//M' providers.tf
         fi      
         terraform init
 
