@@ -103,7 +103,11 @@ jobs:
 
     - name: Terraform - Init
       working-directory: ${{ inputs.terraform_working_directory }}
-      run: terraform init
+      run: |
+        if [ -f providers.tf ]; then
+          sed -r -i 's/(\/\*)?\s*TERRAFORM_VALIDATION_DO_NOT_MODIFY\s*(\*\/)?//M' providers.tf
+        fi      
+        terraform init
 
     - name: Terraform - Validate
       working-directory: ${{ inputs.terraform_working_directory }}
