@@ -45,7 +45,7 @@ jobs:
       uses: nguyenvanuyn96/str-find-action@master
       with:
         find: 'resource "'
-        include: "*.tf"
+        include: '*.tf'
 
     - name: Compliance fail Check Echo
       run: echo "count=${{ steps.out.outputs.fileFoundCount }}"
