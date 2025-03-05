@@ -32,14 +32,28 @@ jobs:
     - name: Checkout 
       uses: actions/checkout@v3
 
+    # - name: Compliance Check
+    #   uses: vrsoftbr/search-text@v1
+    #   with:
+    #     text: 'resource "'
+    #     include: '*.tf'
+    #     exclude-dir: '{variables,coverage}'
+    #     error-on-find: false
+
     - name: Compliance Check
-      uses: vrsoftbr/search-text@v1
+      id: out
+      uses: nguyenvanuyn96/str-find-action@master
       with:
-        text: 'resource "'
-        include: '*.tf'
-        exclude-dir: '{variables,coverage}'
-        error-on-find: false
-  
+        find: 'resource "'
+        include: "*.tf"
+
+    - name: Compliance fail Check Echo
+      run: echo "count=${{ steps.out.outputs.fileFoundCount }}"
+      
+    - name: Compliance fail Check
+      if: steps.out.outputs.fileFoundCount > 0
+      run: exit 1
+          
     - name: TFLint - Setup
       uses: terraform-linters/setup-tflint@v2
       with:
