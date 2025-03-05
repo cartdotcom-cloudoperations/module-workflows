@@ -34,15 +34,15 @@ jobs:
 
     - name: Compliance Check
       id: out
-      if: ${{ inputs.module_level == 4 }}
+      if: (inputs.module_level != 1)
       uses: nguyenvanuyn96/str-find-action@master
       with:
         find: 'resource "'
       
     - name: Compliance Check Failed
-      if: (steps.out.outputs.fileFoundCount > 0) && (inputs.module_level == 4)
+      if: (steps.out.outputs.fileFoundCount > 0) && (inputs.module_level != 1)
       run: |  
-        echo "Instantiation of resource blocks is NOT permitted in L4 repos"
+        echo "Instantiation of resource blocks is ONLY permitted in L1 repos"
         exit 1
           
     - name: TFLint - Setup
