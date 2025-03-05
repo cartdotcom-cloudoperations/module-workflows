@@ -31,7 +31,15 @@ jobs:
     steps:
     - name: Checkout 
       uses: actions/checkout@v3
-      
+
+    - name: Compliance Check
+      uses: vrsoftbr/search-text@v1
+      with:
+        text: 'resource'
+        include: '*.tf'
+        exclude-dir: '{node_modules,coverage}'
+        error-on-find: true
+  
     - name: TFLint - Setup
       uses: terraform-linters/setup-tflint@v2
       with:
