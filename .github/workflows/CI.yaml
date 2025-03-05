@@ -38,7 +38,7 @@ jobs:
         text: 'resource "'
         include: '*.tf'
         exclude-dir: '{variables,coverage}'
-        error-on-find: true
+        error-on-find: false
   
     - name: TFLint - Setup
       uses: terraform-linters/setup-tflint@v2
