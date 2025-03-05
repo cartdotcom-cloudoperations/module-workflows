@@ -42,7 +42,7 @@ jobs:
     - name: Compliance Check Failed
       if: (steps.out.outputs.fileFoundCount > 0) && (inputs.module_level == 4)
       run: |  
-        echo "Instantiation of resource blocks is not permitted in L4 repos"
+        echo "Instantiation of resource blocks is NOT permitted in L4 repos"
         exit 1
           
     - name: TFLint - Setup
