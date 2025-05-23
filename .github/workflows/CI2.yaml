@@ -21,7 +21,7 @@ on:
 env:
   TFLINT_VERSION: v0.39.3
   TFSEC_VERSION: latest
-  TFC_VERSION: 1.8.3
+  TFC_VERSION: 1.11.4
   
 jobs:
   tflint:
@@ -89,6 +89,7 @@ jobs:
     needs: [tflint, tfsec, checkov]
     name: Terraform Validation
     runs-on: ubuntu-latest
+    #runs-on: [self-hosted, Linux, X64, ecs] temp
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -100,24 +101,13 @@ jobs:
         cli_config_credentials_hostname: ${{ secrets.TFC_ADDR }}
         cli_config_credentials_token: ${{ secrets.TFC_TOKEN }}
 
-    - name: Terraform - Configure Caching
-      working-directory: ${{ inputs.terraform_working_directory }}
-      run: |
-        echo "TF_PLUGIN_CACHE_DIR=$HOME/.terraform.d/plugin-cache" >>"$GITHUB_ENV"
-        mkdir --parents "$HOME/.terraform.d/plugin-cache"
-        
-    - name: Terraform - Cache
-      uses: actions/cache@v4
-      with:
-        path: |
-          ${{ inputs.terraform_working_directory }}/.terraform.d/plugin-cache
-        key: terraform-${{ runner.os }}-${{ hashFiles('**/.terraform.lock.hcl') }}
-        restore-keys: |
-          terraform-${{ runner.os }}-
-            
     - name: Terraform - Init
       working-directory: ${{ inputs.terraform_working_directory }}
-      run: terraform init
+      run: |
+        if [ -f providers.tf ]; then
+          sed -r -i 's/(\/\*)?\s*TERRAFORM_VALIDATION_DO_NOT_MODIFY\s*(\*\/)?//M' providers.tf
+        fi      
+        terraform init
 
     - name: Terraform - Validate
       working-directory: ${{ inputs.terraform_working_directory }}
@@ -129,7 +119,7 @@ jobs:
       run: terraform plan
 
   documentation:
-    if: ${{ inputs.module_level != 4 }}
+    if: ${{ inputs.module_level != 4 && github.event_name != 'pull_request' }}
     name: Documentation
     needs: [tflint, tfsec, checkov]
     runs-on: ubuntu-latest
