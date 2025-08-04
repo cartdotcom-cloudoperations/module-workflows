@@ -147,6 +147,16 @@ jobs:
         git-push: "true"
         working-dir: ${{ inputs.terraform_working_directory }}
 
+  stale-check:
+    name: Stale Check
+    needs: [tflint, tfsec, checkov]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v9
+        with:
+          stale-pr-message: 'This Pull Request is stale because it has been open 4 days with no activity. This PR will be closed in 24 hours.'
+          days-before-stale: 4
+          days-before-close: 1
 
 #   module_info:
 #     if: ${{ inputs.module_level != 4 }}
@@ -243,3 +253,4 @@ jobs:
 #           -F generate_release_notes=true
 #       env:
 #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}        
+
