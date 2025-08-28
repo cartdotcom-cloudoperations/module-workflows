@@ -129,8 +129,15 @@ jobs:
     - name: Terraform - Speculative Plan
       if: ${{ inputs.module_level == 4 }}
       working-directory: ${{ inputs.terraform_working_directory }}
-      run: terraform plan
+      run: terraform plan | tee terraform_plan_output.txt
 
+    - name: Print job summary
+      if: ${{ inputs.module_level == 4 }}
+      uses: sgametrio/terraform-summary-action@main
+      with:
+        log-file: ${{ inputs.terraform_working_directory }}/terraform_plan_output.txt
+        title: Terraform Plan Summary
+        
   documentation:
     if: ${{ inputs.module_level != 4 && github.event_name != 'pull_request' }}
     name: Documentation
@@ -157,4 +164,5 @@ jobs:
           stale-pr-message: 'This Pull Request is stale because it has been open 3 days with no activity. This PR will be closed in 24 hours.'
           days-before-stale: 3
           days-before-close: 1
+
 
